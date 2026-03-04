@@ -120,33 +120,37 @@ else
   fi
 fi
 
+echo ""
+
 # Unload existing agent
 launchctl unload "$LAUNCH_AGENTS/$PLIST_NAME" 2>/dev/null || true
 
 # Install
 mkdir -p "$INSTALL_DIR"
-cp "$SCRIPT_DIR/src/closevpntabs.applescript" "$INSTALL_DIR/"
-echo "$VPN_URL" > "$INSTALL_DIR/vpn_url.txt"
-echo "$BROWSERS" > "$INSTALL_DIR/browsers.txt"
+echo "✔ Created $INSTALL_DIR"
 
-# Symlink osascript with a readable name (shows "Close VPN Tabs" in background activity)
+cp "$SCRIPT_DIR/src/closevpntabs.applescript" "$INSTALL_DIR/"
+echo "✔ Copied closevpntabs.applescript → $INSTALL_DIR/"
+
+echo "$VPN_URL" > "$INSTALL_DIR/vpn_url.txt"
+echo "✔ Wrote vpn_url.txt ($VPN_URL)"
+
+echo "$BROWSERS" > "$INSTALL_DIR/browsers.txt"
+echo "✔ Wrote browsers.txt"
+
 ln -sf /usr/bin/osascript "$INSTALL_DIR/Close VPN Tabs"
+echo "✔ Created symlink Close VPN Tabs → /usr/bin/osascript"
 
 sed "s|__INSTALL_DIR__|$INSTALL_DIR|g;s|__INTERVAL__|$INTERVAL|g" \
   "$SCRIPT_DIR/src/com.user.closevpntabs.plist.template" > "$LAUNCH_AGENTS/$PLIST_NAME"
+echo "✔ Wrote $LAUNCH_AGENTS/$PLIST_NAME"
+
 launchctl load "$LAUNCH_AGENTS/$PLIST_NAME"
+echo "✔ Loaded launchd agent (polling every ${INTERVAL}s)"
 
 # Trigger automation permission prompt by running the script once
-echo "Verifying browser automation access..."
+echo "✔ Verifying browser automation access..."
 osascript "$INSTALL_DIR/closevpntabs.applescript" 2>&1 || true
 
 echo ""
-if [ "$NON_INTERACTIVE" = true ]; then
-  echo "Installed. Tabs matching $VPN_URL will be closed every ${INTERVAL}s."
-else
-  gum style \
-    --border rounded \
-    --padding "0 2" \
-    --border-foreground 76 \
-    "Installed. Tabs matching $VPN_URL will be closed every ${INTERVAL}s."
-fi
+echo "Done."

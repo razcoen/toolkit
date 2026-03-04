@@ -14,7 +14,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ "$NON_INTERACTIVE" = false ]; then
+if [ "$NON_INTERACTIVE" = true ]; then
+  echo "Close VPN Tabs — Uninstaller"
+else
   # Check for gum
   if ! command -v gum &>/dev/null; then
     echo "Installing gum..."
@@ -33,17 +35,28 @@ if [ "$NON_INTERACTIVE" = false ]; then
   fi
 fi
 
-launchctl unload "$LAUNCH_AGENTS/$PLIST_NAME" 2>/dev/null || true
-rm -f "$LAUNCH_AGENTS/$PLIST_NAME"
-rm -rf "$INSTALL_DIR"
+echo ""
+
+if launchctl list | grep -q com.user.closevpntabs; then
+  launchctl unload "$LAUNCH_AGENTS/$PLIST_NAME" 2>/dev/null || true
+  echo "✔ Unloaded launchd agent"
+else
+  echo "– Launchd agent not loaded (skipped)"
+fi
+
+if [ -f "$LAUNCH_AGENTS/$PLIST_NAME" ]; then
+  rm -f "$LAUNCH_AGENTS/$PLIST_NAME"
+  echo "✔ Removed $LAUNCH_AGENTS/$PLIST_NAME"
+else
+  echo "– $PLIST_NAME not found (skipped)"
+fi
+
+if [ -d "$INSTALL_DIR" ]; then
+  rm -rf "$INSTALL_DIR"
+  echo "✔ Removed $INSTALL_DIR"
+else
+  echo "– $INSTALL_DIR not found (skipped)"
+fi
 
 echo ""
-if [ "$NON_INTERACTIVE" = true ]; then
-  echo "Uninstalled."
-else
-  gum style \
-    --border rounded \
-    --padding "0 2" \
-    --border-foreground 76 \
-    "Uninstalled."
-fi
+echo "Done."
