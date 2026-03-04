@@ -1,7 +1,7 @@
--- Close all tabs matching the configured VPN auth URL across selected browsers
+-- Close all tabs matching the VPN auth URL across selected browsers
 
-set vpnUrl to do shell script "cat \"$HOME/close-vpn-tabs/vpn_url.txt\" 2>/dev/null || echo '127.0.0.1:35001'"
-set browserList to do shell script "cat \"$HOME/close-vpn-tabs/browsers.txt\" 2>/dev/null || echo 'Google Chrome'"
+set vpnUrl to "__VPN_URL__"
+set browserList to "__BROWSERS__"
 
 repeat with browserLine in paragraphs of browserList
 	set browserName to browserLine as text
@@ -24,7 +24,6 @@ repeat with browserLine in paragraphs of browserList
 			end if
 		end tell
 	else if browserName is "Firefox" then
-		-- Firefox: close tabs by sending Cmd+W for matching windows
 		tell application "Firefox"
 			if it is running then
 				tell application "System Events"

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-INSTALL_DIR="$HOME/close-vpn-tabs"
+INSTALL_DIR="$HOME/.closevpntabs"
 PLIST_NAME="com.user.closevpntabs.plist"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 NON_INTERACTIVE=false

@@ -6,8 +6,8 @@
 	<string>com.user.closevpntabs</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>__INSTALL_DIR__/Close VPN Tabs</string>
-		<string>__INSTALL_DIR__/closevpntabs.applescript</string>
+		<string>__HOME__/.closevpntabs/Close VPN Tabs</string>
+		<string>__HOME__/.closevpntabs/closevpntabs.applescript</string>
 	</array>
 	<key>StartInterval</key>
 	<integer>__INTERVAL__</integer>

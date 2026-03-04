@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-INSTALL_DIR="$HOME/close-vpn-tabs"
+INSTALL_DIR="$HOME/.closevpntabs"
 PLIST_NAME="com.user.closevpntabs.plist"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -68,7 +68,9 @@ if [ "$NON_INTERACTIVE" = true ]; then
   BROWSERS="$DEFAULT_BROWSER"
   VPN_URL="$DEFAULT_URL"
   INTERVAL="$DEFAULT_INTERVAL"
-  echo "Installing with defaults: browser=$BROWSERS, url=$VPN_URL, interval=${INTERVAL}s"
+  echo "  Browsers: $BROWSERS"
+  echo "  URL:      $VPN_URL"
+  echo "  Interval: ${INTERVAL}s"
 else
   # Check for gum
   if ! command -v gum &>/dev/null; then
@@ -129,19 +131,17 @@ launchctl unload "$LAUNCH_AGENTS/$PLIST_NAME" 2>/dev/null || true
 mkdir -p "$INSTALL_DIR"
 echo "✔ Created $INSTALL_DIR"
 
-cp "$SCRIPT_DIR/src/closevpntabs.applescript" "$INSTALL_DIR/"
-echo "✔ Copied closevpntabs.applescript → $INSTALL_DIR/"
-
-echo "$VPN_URL" > "$INSTALL_DIR/vpn_url.txt"
-echo "✔ Wrote vpn_url.txt ($VPN_URL)"
-
-echo "$BROWSERS" > "$INSTALL_DIR/browsers.txt"
-echo "✔ Wrote browsers.txt"
+# Template the AppleScript with selected values
+BROWSERS_ESCAPED=$(echo "$BROWSERS" | tr '\n' '\n')
+sed "s|__VPN_URL__|$VPN_URL|g;s|__BROWSERS__|$BROWSERS_ESCAPED|g" \
+  "$SCRIPT_DIR/src/closevpntabs.applescript" > "$INSTALL_DIR/closevpntabs.applescript"
+echo "✔ Templated closevpntabs.applescript (url=$VPN_URL)"
 
 ln -sf /usr/bin/osascript "$INSTALL_DIR/Close VPN Tabs"
 echo "✔ Created symlink Close VPN Tabs → /usr/bin/osascript"
 
-sed "s|__INSTALL_DIR__|$INSTALL_DIR|g;s|__INTERVAL__|$INTERVAL|g" \
+# Template and install the plist
+sed "s|__HOME__|$HOME|g;s|__INTERVAL__|$INTERVAL|g" \
   "$SCRIPT_DIR/src/com.user.closevpntabs.plist.template" > "$LAUNCH_AGENTS/$PLIST_NAME"
 echo "✔ Wrote $LAUNCH_AGENTS/$PLIST_NAME"
 
