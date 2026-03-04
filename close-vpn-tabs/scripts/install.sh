@@ -80,11 +80,11 @@ launchctl unload "$LAUNCH_AGENTS/$PLIST_NAME" 2>/dev/null || true
 
 # Install
 mkdir -p "$INSTALL_DIR"
-cp "$SCRIPT_DIR/close_vpn_tabs.applescript" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/src/close_vpn_tabs.applescript" "$INSTALL_DIR/"
 echo "$VPN_URL" > "$INSTALL_DIR/vpn_url.txt"
 echo "$BROWSERS" > "$INSTALL_DIR/browsers.txt"
 sed "s|__INSTALL_DIR__|$INSTALL_DIR|g;s|__INTERVAL__|$INTERVAL|g" \
-  "$SCRIPT_DIR/com.user.closevpntabs.plist.template" > "$LAUNCH_AGENTS/$PLIST_NAME"
+  "$SCRIPT_DIR/src/com.user.closevpntabs.plist.template" > "$LAUNCH_AGENTS/$PLIST_NAME"
 launchctl load "$LAUNCH_AGENTS/$PLIST_NAME"
 
 echo ""
