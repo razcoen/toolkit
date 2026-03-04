@@ -7,10 +7,10 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/bin/osascript</string>
-		<string>/Users/raz.cohen/close_vpn_tabs.applescript</string>
+		<string>__INSTALL_DIR__/close_vpn_tabs.applescript</string>
 	</array>
 	<key>StartInterval</key>
-	<integer>60</integer>
+	<integer>__INTERVAL__</integer>
 	<key>RunAtLoad</key>
 	<true/>
 </dict>
