@@ -108,6 +108,10 @@ sed "s|__INSTALL_DIR__|$INSTALL_DIR|g;s|__INTERVAL__|$INTERVAL|g" \
   "$SCRIPT_DIR/src/com.user.closevpntabs.plist.template" > "$LAUNCH_AGENTS/$PLIST_NAME"
 launchctl load "$LAUNCH_AGENTS/$PLIST_NAME"
 
+# Trigger automation permission prompt by running the script once
+echo "Verifying browser automation access..."
+osascript "$INSTALL_DIR/close_vpn_tabs.applescript" 2>&1 || true
+
 echo ""
 if [ "$NON_INTERACTIVE" = true ]; then
   echo "Installed. Tabs matching $VPN_URL will be closed every ${INTERVAL}s."
