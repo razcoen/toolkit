@@ -9,12 +9,6 @@ DEFAULT_URL="127.0.0.1:35001"
 DEFAULT_INTERVAL="60"
 NON_INTERACTIVE=false
 
-# Check for AWS VPN Client
-if [ ! -d "/Applications/AWS VPN Client" ] && [ ! -d "/Applications/AWS VPN Client.app" ]; then
-  echo "AWS VPN Client is not installed. Nothing to do."
-  exit 1
-fi
-
 # Parse flags
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -22,6 +16,14 @@ while [[ $# -gt 0 ]]; do
     *) shift ;;
   esac
 done
+
+# Check for AWS VPN Client
+if [ -d "/Applications/AWS VPN Client" ] || [ -d "/Applications/AWS VPN Client.app" ]; then
+  echo "✔ AWS VPN Client detected"
+else
+  echo "✘ AWS VPN Client is not installed. Nothing to do."
+  exit 0
+fi
 
 # Detect which supported browsers are installed
 INSTALLED_BROWSERS=()
