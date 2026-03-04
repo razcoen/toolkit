@@ -7,7 +7,7 @@ When the VPN reconnects (e.g. after waking from sleep), it can open dozens of au
 ## Install
 
 ```sh
-./install.sh
+make install
 ```
 
 The installer prompts for the VPN auth URL and poll interval.
@@ -15,7 +15,7 @@ The installer prompts for the VPN auth URL and poll interval.
 ## Uninstall
 
 ```sh
-./uninstall.sh
+make uninstall
 ```
 
 ## Requirements
