@@ -83,6 +83,11 @@ mkdir -p "$INSTALL_DIR"
 cp "$SCRIPT_DIR/src/close_vpn_tabs.applescript" "$INSTALL_DIR/"
 echo "$VPN_URL" > "$INSTALL_DIR/vpn_url.txt"
 echo "$BROWSERS" > "$INSTALL_DIR/browsers.txt"
+
+# Compile AppleScript into an app bundle (shows "Close VPN Tabs" instead of "osascript")
+osacompile -o "$INSTALL_DIR/Close VPN Tabs.app" "$INSTALL_DIR/close_vpn_tabs.applescript"
+defaults write "$INSTALL_DIR/Close VPN Tabs.app/Contents/Info" LSUIElement -bool true
+
 sed "s|__INSTALL_DIR__|$INSTALL_DIR|g;s|__INTERVAL__|$INTERVAL|g" \
   "$SCRIPT_DIR/src/com.user.closevpntabs.plist.template" > "$LAUNCH_AGENTS/$PLIST_NAME"
 launchctl load "$LAUNCH_AGENTS/$PLIST_NAME"

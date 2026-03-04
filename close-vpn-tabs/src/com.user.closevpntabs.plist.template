@@ -6,8 +6,9 @@
 	<string>com.user.closevpntabs</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/usr/bin/osascript</string>
-		<string>__INSTALL_DIR__/close_vpn_tabs.applescript</string>
+		<string>/usr/bin/open</string>
+		<string>-g</string>
+		<string>__INSTALL_DIR__/Close VPN Tabs.app</string>
 	</array>
 	<key>StartInterval</key>
 	<integer>__INTERVAL__</integer>
