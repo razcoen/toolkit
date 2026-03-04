@@ -7,7 +7,7 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>__INSTALL_DIR__/Close VPN Tabs</string>
-		<string>__INSTALL_DIR__/close_vpn_tabs.applescript</string>
+		<string>__INSTALL_DIR__/closevpntabs.applescript</string>
 	</array>
 	<key>StartInterval</key>
 	<integer>__INTERVAL__</integer>

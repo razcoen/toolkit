@@ -23,6 +23,23 @@ repeat with browserLine in paragraphs of browserList
 				end repeat
 			end if
 		end tell
+	else if browserName is "Firefox" then
+		-- Firefox: close tabs by sending Cmd+W for matching windows
+		tell application "Firefox"
+			if it is running then
+				tell application "System Events"
+					tell process "firefox"
+						set windowList to every window
+						repeat with w in windowList
+							if name of w contains vpnUrl then
+								perform action "AXRaise" of w
+								keystroke "w" using command down
+							end if
+						end repeat
+					end tell
+				end tell
+			end if
+		end tell
 	else
 		-- Chromium-based browsers (Chrome, Brave, Edge, Arc)
 		using terms from application "Google Chrome"

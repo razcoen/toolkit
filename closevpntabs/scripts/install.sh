@@ -9,6 +9,12 @@ DEFAULT_URL="127.0.0.1:35001"
 DEFAULT_INTERVAL="60"
 NON_INTERACTIVE=false
 
+# Check for AWS VPN Client
+if [ ! -d "/Applications/AWS VPN Client" ] && [ ! -d "/Applications/AWS VPN Client.app" ]; then
+  echo "AWS VPN Client is not installed. Nothing to do."
+  exit 1
+fi
+
 # Parse flags
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -16,6 +22,20 @@ while [[ $# -gt 0 ]]; do
     *) shift ;;
   esac
 done
+
+# Detect which supported browsers are installed
+INSTALLED_BROWSERS=()
+[ -d "/Applications/Google Chrome.app" ] && INSTALLED_BROWSERS+=("Google Chrome")
+[ -d "/Applications/Safari.app" ] && INSTALLED_BROWSERS+=("Safari")
+[ -d "/Applications/Firefox.app" ] && INSTALLED_BROWSERS+=("Firefox")
+[ -d "/Applications/Brave Browser.app" ] && INSTALLED_BROWSERS+=("Brave Browser")
+[ -d "/Applications/Microsoft Edge.app" ] && INSTALLED_BROWSERS+=("Microsoft Edge")
+[ -d "/Applications/Arc.app" ] && INSTALLED_BROWSERS+=("Arc")
+
+if [ ${#INSTALLED_BROWSERS[@]} -eq 0 ]; then
+  echo "No supported browsers found."
+  exit 1
+fi
 
 # Detect default browser
 detect_default_browser() {
@@ -27,12 +47,13 @@ detect_default_browser() {
     | head -1)
 
   case "$bundle_id" in
-    com.google.chrome)        echo "Google Chrome" ;;
-    com.apple.safari)         echo "Safari" ;;
-    com.brave.browser)        echo "Brave Browser" ;;
-    com.microsoft.edgemac)    echo "Microsoft Edge" ;;
+    com.google.chrome)          echo "Google Chrome" ;;
+    com.apple.safari)           echo "Safari" ;;
+    org.mozilla.firefox)        echo "Firefox" ;;
+    com.brave.browser)          echo "Brave Browser" ;;
+    com.microsoft.edgemac)      echo "Microsoft Edge" ;;
     company.thebrowser.browser) echo "Arc" ;;
-    *)                        echo "Google Chrome" ;;
+    *)                          echo "${INSTALLED_BROWSERS[0]}" ;;
   esac
 }
 
@@ -59,11 +80,7 @@ else
   BROWSERS=$(gum choose --no-limit \
     --header "Select browsers to monitor:" \
     --selected "$DEFAULT_BROWSER" \
-    "Google Chrome" \
-    "Safari" \
-    "Brave Browser" \
-    "Microsoft Edge" \
-    "Arc")
+    "${INSTALLED_BROWSERS[@]}")
 
   if [ -z "$BROWSERS" ]; then
     echo "No browsers selected. Cancelled."
@@ -97,7 +114,7 @@ launchctl unload "$LAUNCH_AGENTS/$PLIST_NAME" 2>/dev/null || true
 
 # Install
 mkdir -p "$INSTALL_DIR"
-cp "$SCRIPT_DIR/src/close_vpn_tabs.applescript" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/src/closevpntabs.applescript" "$INSTALL_DIR/"
 echo "$VPN_URL" > "$INSTALL_DIR/vpn_url.txt"
 echo "$BROWSERS" > "$INSTALL_DIR/browsers.txt"
 
@@ -110,7 +127,7 @@ launchctl load "$LAUNCH_AGENTS/$PLIST_NAME"
 
 # Trigger automation permission prompt by running the script once
 echo "Verifying browser automation access..."
-osascript "$INSTALL_DIR/close_vpn_tabs.applescript" 2>&1 || true
+osascript "$INSTALL_DIR/closevpntabs.applescript" 2>&1 || true
 
 echo ""
 if [ "$NON_INTERACTIVE" = true ]; then
