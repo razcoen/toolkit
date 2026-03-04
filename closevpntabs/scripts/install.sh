@@ -17,14 +17,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Check for AWS VPN Client
-if [ -d "/Applications/AWS VPN Client" ] || [ -d "/Applications/AWS VPN Client.app" ]; then
-  echo "✔ AWS VPN Client detected"
-else
-  echo "✘ AWS VPN Client is not installed. Nothing to do."
-  exit 0
-fi
-
 # Detect which supported browsers are installed
 INSTALLED_BROWSERS=()
 [ -d "/Applications/Google Chrome.app" ] && INSTALLED_BROWSERS+=("Google Chrome")
@@ -62,6 +54,17 @@ detect_default_browser() {
 DEFAULT_BROWSER=$(detect_default_browser)
 
 if [ "$NON_INTERACTIVE" = true ]; then
+  echo "Close VPN Tabs — Installer"
+  echo ""
+
+  # Check for AWS VPN Client
+  if [ -d "/Applications/AWS VPN Client" ] || [ -d "/Applications/AWS VPN Client.app" ]; then
+    echo "✔ AWS VPN Client detected"
+  else
+    echo "✘ AWS VPN Client is not installed. Nothing to do."
+    exit 0
+  fi
+
   BROWSERS="$DEFAULT_BROWSER"
   VPN_URL="$DEFAULT_URL"
   INTERVAL="$DEFAULT_INTERVAL"
@@ -78,6 +81,14 @@ else
     --padding "0 2" \
     --border-foreground 212 \
     "Close VPN Tabs — Installer"
+
+  # Check for AWS VPN Client
+  if [ -d "/Applications/AWS VPN Client" ] || [ -d "/Applications/AWS VPN Client.app" ]; then
+    echo "✔ AWS VPN Client detected"
+  else
+    echo "✘ AWS VPN Client is not installed. Nothing to do."
+    exit 0
+  fi
 
   BROWSERS=$(gum choose --no-limit \
     --header "Select browsers to monitor:" \
