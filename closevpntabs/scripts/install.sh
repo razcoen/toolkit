@@ -86,23 +86,21 @@ else
     echo "No browsers selected. Cancelled."
     exit 1
   fi
+  echo "Browsers: $(echo "$BROWSERS" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')"
 
   VPN_URL=$(gum input \
     --placeholder "$DEFAULT_URL" \
     --prompt "VPN auth URL to close: " \
     --value "$DEFAULT_URL")
+  echo "URL:      $VPN_URL"
 
   INTERVAL=$(gum input \
     --placeholder "$DEFAULT_INTERVAL" \
     --prompt "Poll interval (seconds): " \
     --value "$DEFAULT_INTERVAL")
+  echo "Interval: ${INTERVAL}s"
 
   echo ""
-  gum style --faint "Browsers: $(echo "$BROWSERS" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')"
-  gum style --faint "URL:      $VPN_URL"
-  gum style --faint "Interval: ${INTERVAL}s"
-  echo ""
-
   if ! gum confirm "Install?"; then
     echo "Cancelled."
     exit 0
