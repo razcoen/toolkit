@@ -1,7 +1,7 @@
 .PHONY: install uninstall
 
 install:
-	@./scripts/install.sh
+	@./scripts/install.sh $(ARGS)
 
 uninstall:
-	@./scripts/uninstall.sh
+	@./scripts/uninstall.sh $(ARGS)

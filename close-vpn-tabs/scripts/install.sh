@@ -6,12 +6,16 @@ PLIST_NAME="com.user.closevpntabs.plist"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DEFAULT_URL="127.0.0.1:35001"
+DEFAULT_INTERVAL="60"
+NON_INTERACTIVE=false
 
-# Check for gum
-if ! command -v gum &>/dev/null; then
-  echo "Installing gum..."
-  brew install gum
-fi
+# Parse flags
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --defaults) NON_INTERACTIVE=true; shift ;;
+    *) shift ;;
+  esac
+done
 
 # Detect default browser
 detect_default_browser() {
@@ -34,45 +38,58 @@ detect_default_browser() {
 
 DEFAULT_BROWSER=$(detect_default_browser)
 
-gum style \
-  --border rounded \
-  --padding "0 2" \
-  --border-foreground 212 \
-  "Close VPN Tabs — Installer"
+if [ "$NON_INTERACTIVE" = true ]; then
+  BROWSERS="$DEFAULT_BROWSER"
+  VPN_URL="$DEFAULT_URL"
+  INTERVAL="$DEFAULT_INTERVAL"
+  echo "Installing with defaults: browser=$BROWSERS, url=$VPN_URL, interval=${INTERVAL}s"
+else
+  # Check for gum
+  if ! command -v gum &>/dev/null; then
+    echo "Installing gum..."
+    brew install gum
+  fi
 
-BROWSERS=$(gum choose --no-limit \
-  --header "Select browsers to monitor:" \
-  --selected "$DEFAULT_BROWSER" \
-  "Google Chrome" \
-  "Safari" \
-  "Brave Browser" \
-  "Microsoft Edge" \
-  "Arc")
+  gum style \
+    --border rounded \
+    --padding "0 2" \
+    --border-foreground 212 \
+    "Close VPN Tabs — Installer"
 
-if [ -z "$BROWSERS" ]; then
-  echo "No browsers selected. Cancelled."
-  exit 1
-fi
+  BROWSERS=$(gum choose --no-limit \
+    --header "Select browsers to monitor:" \
+    --selected "$DEFAULT_BROWSER" \
+    "Google Chrome" \
+    "Safari" \
+    "Brave Browser" \
+    "Microsoft Edge" \
+    "Arc")
 
-VPN_URL=$(gum input \
-  --placeholder "$DEFAULT_URL" \
-  --prompt "VPN auth URL to close: " \
-  --value "$DEFAULT_URL")
+  if [ -z "$BROWSERS" ]; then
+    echo "No browsers selected. Cancelled."
+    exit 1
+  fi
 
-INTERVAL=$(gum input \
-  --placeholder "60" \
-  --prompt "Poll interval (seconds): " \
-  --value "60")
+  VPN_URL=$(gum input \
+    --placeholder "$DEFAULT_URL" \
+    --prompt "VPN auth URL to close: " \
+    --value "$DEFAULT_URL")
 
-echo ""
-gum style --faint "Browsers: $(echo "$BROWSERS" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')"
-gum style --faint "URL:      $VPN_URL"
-gum style --faint "Interval: ${INTERVAL}s"
-echo ""
+  INTERVAL=$(gum input \
+    --placeholder "$DEFAULT_INTERVAL" \
+    --prompt "Poll interval (seconds): " \
+    --value "$DEFAULT_INTERVAL")
 
-if ! gum confirm "Install?"; then
-  echo "Cancelled."
-  exit 0
+  echo ""
+  gum style --faint "Browsers: $(echo "$BROWSERS" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')"
+  gum style --faint "URL:      $VPN_URL"
+  gum style --faint "Interval: ${INTERVAL}s"
+  echo ""
+
+  if ! gum confirm "Install?"; then
+    echo "Cancelled."
+    exit 0
+  fi
 fi
 
 # Unload existing agent
@@ -92,8 +109,12 @@ sed "s|__INSTALL_DIR__|$INSTALL_DIR|g;s|__INTERVAL__|$INTERVAL|g" \
 launchctl load "$LAUNCH_AGENTS/$PLIST_NAME"
 
 echo ""
-gum style \
-  --border rounded \
-  --padding "0 2" \
-  --border-foreground 76 \
-  "Installed. Tabs matching $VPN_URL will be closed every ${INTERVAL}s."
+if [ "$NON_INTERACTIVE" = true ]; then
+  echo "Installed. Tabs matching $VPN_URL will be closed every ${INTERVAL}s."
+else
+  gum style \
+    --border rounded \
+    --padding "0 2" \
+    --border-foreground 76 \
+    "Installed. Tabs matching $VPN_URL will be closed every ${INTERVAL}s."
+fi
